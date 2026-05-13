@@ -9,7 +9,8 @@ if (!url) {
     process.exit(1)
 }
 
-console.log('connecting to', url.replace(/\/\/.*:.*@/, '//***:***@'))
+console.log('Connecting to MongoDB...')
+console.log('URI:', url.replace(/mongodb\+srv:\/\/.*:.*@/, 'mongodb+srv://***:***@'))
 
 mongoose.connect(url, {family: 4})
     .then(result => {
