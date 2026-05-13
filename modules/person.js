@@ -4,7 +4,12 @@ mongoose.set('strictQuery', false)
 
 const url = process.env.MONGODB_URI
 
-console.log('connecting to', url)
+if (!url) {
+    console.error('MONGODB_URI environment variable is not set!')
+    process.exit(1)
+}
+
+console.log('connecting to', url.replace(/\/\/.*:.*@/, '//***:***@'))
 
 mongoose.connect(url, {family: 4})
     .then(result => {
@@ -12,6 +17,7 @@ mongoose.connect(url, {family: 4})
     })
     .catch(error => {
         console.error('error connecting to MongoDB:', error.message)
+        process.exit(1)
     })
 
 const personSchema = new mongoose.Schema({
