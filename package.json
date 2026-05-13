@@ -6,7 +6,7 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "test": "echo \\\"Error: no test sprcified\\\" && exit 1",
-    "build:ui": "@powershell Remove-Item -Recurse -Force dist && cd ../Fullstackopen/Osa2/puhelinluettelo && npm run build && @powershell Copy-Item dist Recurse ../../../FSO_Backend",
+    "build:ui": "@powershell -NoProfile Remove-Item -Recurse -Force dist && cd ../Fullstackopen/Osa2/puhelinluettelo && npm run build && @powershell Copy-Item -Recurse dist ../../../FSO_Backend",
     "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push"
   },
   "repository": {
