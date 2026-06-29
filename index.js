@@ -15,42 +15,30 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :c
 app.use(cors())
 app.use(express.static('dist'))
 
-const generateId = () => {
-    const id = Math.floor(Math.random() * 1000000000)
-    return String(id)
-}
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
 
-app.get('/api/persons', (request, response) => {
-    Person.find({}).then(persons => {
-        response.json(persons)
-    }).catch(error => {
-        console.error('Error fetching persons:', error.message)
-        response.status(500).json({ error: 'Failed to fetch persons' })
-    })
-})
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  }
+  else {
+    return response.status(500).send({ error: 'internal server error' })
+  }
+
+  next(error)
+}
 
 app.get('/info', (request, response) => {
     Person.countDocuments({}).then(count => {
         response.send('<p>Phonebook has info for ' + count +' people</p>' + 
                       '<p>' + new Date() + '</p>'
         )
-    }).catch(error => {
-        console.error('Error counting documents:', error.message)
-        response.status(500).json({ error: 'Failed to retrieve info' })
     })
 })
 
-app.get('/api/persons/:id', (request, response) => {
-    const id = request.params.id
-    Person.findById(id).then(person => {
-        if (person) {
-            response.json(person)
-        } else {
-            response.status(404).end()
-        }
-    }).catch(error => {
-        console.error('Error fetching person:', error.message)
-        response.status(500).json({ error: 'Failed to fetch person' })
+app.get('/api/persons', (request, response) => {
+    Person.find({}).then(persons => {
+        response.json(persons)
     })
 })
 
@@ -78,21 +66,49 @@ app.post('/api/persons', async (request, response) => {
 
     person.save().then(savedPerson => {
         response.json(savedPerson)
-    }).catch(error => {
-        console.error('Error saving person:', error.message)
-        response.status(500).json({ error: 'Failed to save person' })
     })
 })
 
-app.delete('/api/persons/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
     const id = request.params.id
-    Person.findByIdAndDelete(id).then(() => {
-        response.status(204).end()
-    }).catch(error => {
-        console.error('Error deleting person:', error.message)
-        response.status(500).json({ error: 'Failed to delete person' })
-    })
+    Person.findById(id).then(person => {
+        if (person) {
+            response.json(person)
+        } else {
+            response.status(404).end()
+        }
+    }).catch(error => next(error))
 })
+
+app.delete('/api/persons/:id', (request, response, next) => {
+    Person.findByIdAndDelete(request.params.id).then(() => {
+        response.status(204).end()
+    }).catch(error => next(error))
+})
+
+app.put('/api/persons/:id', (request, response, next) => {
+    const { name, number } = request.body
+
+    Person.findById(request.params.id).then(updatedPerson => {
+        if (!updatedPerson) {
+            return response.status(404).end()
+        }
+
+        updatedPerson.name = name
+        updatedPerson.number = number
+
+        return updatedPerson.save().then(savedPerson => {
+            response.json(savedPerson)
+        })
+    }).catch(error => next(error))
+})
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
