@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const { validate } = require('./modules/person')
 
 if (process.argv.length<3) {
   console.log('give password as argument')
@@ -18,8 +19,22 @@ console.log(`Connecting to: mongodb+srv://jhietikko02:***@cluster0.iy2ez.mongodb
 mongoose.set('strictQuery', false)
 
 const personSchema = new mongoose.Schema({
-  name: String,
-  number: String,
+  name: {
+    type: String,
+    minlength: 3,
+    required: true
+  },
+  number: {
+    type: String,
+    minlength: 8,
+    validate: {
+      validator: function(v) {
+        return /\d{2,3}-\d+/.test(v)
+      },
+      message: props => `Invalid phone number format: ${props.number}`
+    },
+    required: [true, 'User phone number required']
+  }
 })
 
 const Person = mongoose.model('Person', personSchema)
