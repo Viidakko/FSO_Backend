@@ -14,7 +14,7 @@ let newNumber = process.argv[4]
 const url = `mongodb+srv://jhietikko02:${password}@cluster0.iy2ez.mongodb.net/test?appName=Cluster0`
 
 // Debug: Show connection string (without password)
-console.log(`Connecting to: mongodb+srv://jhietikko02:***@cluster0.iy2ez.mongodb.net/test?appName=Cluster0`)
+console.log('Connecting to: mongodb+srv://jhietikko02:***@cluster0.iy2ez.mongodb.net/test?appName=Cluster0')
 
 mongoose.set('strictQuery', false)
 
@@ -27,13 +27,7 @@ const personSchema = new mongoose.Schema({
   number: {
     type: String,
     minlength: 8,
-    validate: {
-      validator: function(v) {
-        return /\d{2,3}-\d+/.test(v)
-      },
-      message: props => `Invalid phone number format: ${props.number}`
-    },
-    required: [true, 'User phone number required']
+    validate: validate
   }
 })
 
@@ -45,15 +39,14 @@ mongoose.connect(url).then(() => {
     number: newNumber,
   })
 
-  if (process.argv[3] != null && process.argv[4] != null) {
-    person.save().then(result => {
+  if (process.argv[3] !== null && process.argv[4] !== null) {
+    person.save().then(() => {
       console.log(`Added ${newName} number ${newNumber} to phonebook`)
       mongoose.connection.close()
     })
-    
   } else {
     Person.find({}).then(result => {
-      console.log("Phonebook:")
+      console.log('Phonebook:')
       result.forEach(person => {
         console.log(`${person.name} ${person.number}`)
       })

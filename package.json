@@ -6,6 +6,7 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "test": "echo \\\"Error: no test sprcified\\\" && exit 1",
+    "lint": "eslint .",
     "build:ui": "@powershell -NoProfile Remove-Item -Recurse -Force dist && cd ../Fullstackopen/Osa2/puhelinluettelo && npm run build && @powershell -NoProfile Copy-Item -Recurse dist ../../../FSO_Backend",
     "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push"
   },
@@ -29,6 +30,11 @@
     "morgan": "^1.10.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^17.7.0",
     "nodemon": "^3.1.7"
   }
 }
