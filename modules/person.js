@@ -22,8 +22,24 @@ mongoose.connect(url, {family: 4})
     })
 
 const personSchema = new mongoose.Schema({
-  name: String,
-  number: String,
+    name: {
+        type: String,
+        minlength: 3,
+        required: true
+    },
+    number: {
+        type: String,
+        minlength: 8,
+        validate: {
+            validator: function(v) {
+                if (!v) return false
+                const hyphenFormat = /^\d{2,3}-\d+$/
+                const digitsOnly = v.replace(/\D/g, '')
+                return hyphenFormat.test(v) && digitsOnly.length >= 8
+            },
+            message: props => `${props.value} is not a valid phone number!`
+        }
+    },
 })
 
 personSchema.set('toJSON', {

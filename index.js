@@ -69,7 +69,7 @@ app.post('/api/persons', async (request, response, next) => {
 
     person.save().then(savedPerson => {
         response.json(savedPerson)
-    }).catch(error => { next(error) })
+    }).catch(error => next(error))
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
